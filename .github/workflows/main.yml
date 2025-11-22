@@ -1,0 +1,30 @@
+name: Valgrind Cache Analysis
+
+# 언제 실행할지 설정 (코드를 push하거나, 웹에서 수동으로 실행할 때)
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    # 리눅스 환경(Ubuntu)에서 실행
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. 저장소의 코드를 가져옴
+    - uses: actions/checkout@v3
+
+    # 2. Valgrind와 GCC 컴파일러 설치
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y valgrind gcc
+
+    # 3. 코드 컴파일 (디버깅 정보 포함 -g 옵션 권장)
+    - name: Compile C Code
+      run: gcc -o matrix_test matrix_test.c -g
+
+    # 4. Valgrind(Cachegrind) 실행
+    - name: Run Cachegrind Analysis
+      run: valgrind --tool=cachegrind ./matrix_test
